@@ -63,10 +63,6 @@ public class MainViewController {
 				}
 				actualPadId = padId;
 				try {
-
-					// Date blub = epLite.getLastEdited(padId);
-
-					// epLite.getGroupPadPublicStatus(padId);
 					padPanelController = new PadPanelController(actualPadId);
 					mainView.showPanel(padPanelController.getPadPanel());
 
@@ -97,13 +93,10 @@ public class MainViewController {
 						groupPanelController = new GroupPanelController(actualGroupId);
 
 						mainView.showPanel(groupPanelController.getGroupPanel());
-						//loadPadPanel();
-						//groupPanel.setPadPanel(padPanel);
 					} else {
 						actualPadId = padId;
 						epLite.createPad(padId);
 						padPanelController = new PadPanelController(padId);
-						//loadPadPanel();
 						mainView.showPanel(padPanelController.getPadPanel());
 					}
 				} catch (EPLiteException e) {
@@ -114,7 +107,6 @@ public class MainViewController {
 				}
 			}
 		});
-		// group test id: g.EN91GTDtiKXXpRbJ
 
 		mainView.setDeletePadMenuListener(new ActionListener() {
 			@Override

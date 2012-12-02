@@ -54,15 +54,6 @@ public class GroupPanelController {
 		
 		padPanelController = new PadPanelController(padId);
 		groupPanel.setPadPanel(padPanelController.getPadPanel());
-		
-		/*if (padNames.length > 0) {
-			groupPanel = new GroupPanel(padNames);
-		} else {
-			groupPanel = new GroupPanel(new String[] {"empty"});
-		}
-		mainView.showPanel(groupPanel);*/
-		// loadPadPanel();
-		// groupPanel.setPadPanel(padPanel);
 	}
 	
 	public GroupPanel getGroupPanel() {

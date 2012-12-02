@@ -35,7 +35,7 @@ public class SettingsView extends JDialog {
 		c.anchor = GridBagConstraints.NORTH;
 		c.insets = new Insets(3,3,3,3);
 		
-		JLabel hostLabel = new JLabel("Host: ");
+		JLabel hostLabel = new JLabel("URL: ");
 		c.gridx = 0;
 		c.gridy = 0;
 		c.weightx = 0;
