@@ -10,33 +10,36 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
+import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
+import javax.swing.table.DefaultTableModel;
 
-public class PadEditView extends JDialog {
+public class GroupListView extends JDialog {
 
-	private JTextArea padTextArea = null;
-	private JButton saveButton = null;
+	private JTable groupIdTable = null;
+	private JButton openButton = null;
 
-	public PadEditView(String padText) {
+	public GroupListView() {
 		super(null, JDialog.DEFAULT_MODALITY_TYPE);
-		createGUI(padText);
+		createGUI();
 		
 		setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/res/icons/eplite.png")));
-		
-		setTitle("Edit pad text");
 
 		setMinimumSize(new Dimension(300, 400));
 		CenteredFrame.center(this, getWidth(), getHeight());
 	}
 
-	private void createGUI(String padText) {
+	private void createGUI() {
 		JPanel panel = new JPanel(new BorderLayout());
-		padTextArea = new JTextArea(padText);
-		panel.add(new JScrollPane(padTextArea), BorderLayout.CENTER);
+
+		groupIdTable = new JTable();
+		groupIdTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		groupIdTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+		panel.add(new JScrollPane(groupIdTable), BorderLayout.CENTER);
 
 		JPanel buttonPanel = new JPanel(new BorderLayout());
-		saveButton = new JButton("Save");
-		buttonPanel.add(saveButton, BorderLayout.WEST);
+		openButton = new JButton("Open");
+		buttonPanel.add(openButton, BorderLayout.WEST);
 		JButton cancelButton = new JButton("Cancel");
 		buttonPanel.add(cancelButton, BorderLayout.EAST);
 
@@ -51,11 +54,15 @@ public class PadEditView extends JDialog {
 		getContentPane().add(panel);
 	}
 
-	public void setSaveButtonListener(ActionListener a) {
-		saveButton.addActionListener(a);
+	public JTable getGroupIdTable() {
+		return groupIdTable;
 	}
 
-	public String getPadText() {
-		return padTextArea.getText();
+	public void setGroupIdTableModel(DefaultTableModel d) {
+		groupIdTable.setModel(d);
+	}
+
+	public void setOpenButtonListener(ActionListener a) {
+		openButton.addActionListener(a);
 	}
 }

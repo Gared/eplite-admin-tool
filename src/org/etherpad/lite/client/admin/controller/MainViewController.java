@@ -10,14 +10,12 @@ import org.etherpad.lite.client.admin.view.AboutPanel;
 import org.etherpad.lite.client.admin.view.MainView;
 import org.etherpad_lite_client.EPLiteException;
 
-
 public class MainViewController {
 	private MainView mainView;
 	private SettingsViewController settingsViewController;
 
-	private String actualPadId = null;
 	private String actualGroupId = null;
-	
+
 	private GroupPanelController groupPanelController = null;
 	private PadPanelController padPanelController = null;
 
@@ -32,25 +30,19 @@ public class MainViewController {
 	}
 
 	private void addListener() {
+		final MainViewController mainViewController = this;
 		mainView.setAboutMenuListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				new AboutPanel();
 			}
 		});
-		
+
 		mainView.setServerConfigMenuListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				// Show settings window
 				settingsViewController = new SettingsViewController(mainView);
-			}
-		});
-
-		mainView.setCreateGroupMenuListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				epLite.createGroup();
 			}
 		});
 
@@ -61,19 +53,11 @@ public class MainViewController {
 				if (padId == null) {
 					return;
 				}
-				actualPadId = padId;
 				try {
-					padPanelController = new PadPanelController(actualPadId);
-					mainView.showPanel(padPanelController.getPadPanel());
-
-					// epLite.isGroupPadPasswordProtected(padId);
+					openPad(padId);
 				} catch (EPLiteException e) {
 					e.printStackTrace();
-					JOptionPane.showMessageDialog(
-							mainView,
-							"Error: "
-									+ e.getMessage()
-									+ ". Are you sure you entered the correct padId?",
+					JOptionPane.showMessageDialog(mainView, "Error: " + e.getMessage() + ". Are you sure you entered the correct padId?",
 							"Error loading pad", JOptionPane.ERROR_MESSAGE);
 				}
 			}
@@ -87,39 +71,27 @@ public class MainViewController {
 					return;
 				}
 				try {
-					if (actualGroupId != null) {
-						actualPadId = actualGroupId + "$" + padId;
-						epLite.createGroupPad(actualGroupId, padId);
-						groupPanelController = new GroupPanelController(actualGroupId);
-
-						mainView.showPanel(groupPanelController.getGroupPanel());
+					if (isGroupPad()) {
+						int reply = JOptionPane.showConfirmDialog(null, "Create pad for this group?", "", JOptionPane.YES_NO_OPTION);
+						if (reply == JOptionPane.YES_OPTION) {
+							createGroupPad(padId);
+						} else {
+							createPublicPad(padId);
+						}
 					} else {
-						actualPadId = padId;
-						epLite.createPad(padId);
-						padPanelController = new PadPanelController(padId);
-						mainView.showPanel(padPanelController.getPadPanel());
+						createPublicPad(padId);
 					}
 				} catch (EPLiteException e) {
 					e.printStackTrace();
-					JOptionPane.showMessageDialog(mainView,
-							"Error: " + e.getMessage(), "Error creating pad",
-							JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(mainView, "Error: " + e.getMessage(), "Error creating pad", JOptionPane.ERROR_MESSAGE);
 				}
 			}
 		});
 
-		mainView.setDeletePadMenuListener(new ActionListener() {
+		mainView.setManagePadsMenuListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				if (actualPadId == null) {
-					String padId = JOptionPane.showInputDialog("Pad ID");
-					if (padId == null) {
-						return;
-					}
-					epLite.deletePad(padId);
-				} else {
-					epLite.deletePad(actualPadId);
-				}
+				new ManagePadsController(epLite.getAllGroups(), mainViewController);
 			}
 		});
 
@@ -130,20 +102,85 @@ public class MainViewController {
 				if (groupId == null) {
 					return;
 				}
-
-				actualGroupId = groupId;
-				groupPanelController = new GroupPanelController(actualGroupId);
-				mainView.showPanel(groupPanelController.getGroupPanel());
+				try {
+					openGroup(groupId);
+				} catch (EPLiteException e) {
+					e.printStackTrace();
+					JOptionPane.showMessageDialog(mainView, "Error: " + e.getMessage(), "Error opening group", JOptionPane.ERROR_MESSAGE);
+				}
 			}
 		});
 
 		mainView.setCreateGroupMenuListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				actualGroupId = epLite.createGroup();
-				groupPanelController = new GroupPanelController(actualGroupId);
-				mainView.showPanel(groupPanelController.getGroupPanel());
+				openGroup(epLite.createGroup());
 			}
 		});
+
+		/*
+		 * mainView.setDeleteGroupMenuListener(new ActionListener() {
+		 * 
+		 * @Override public void actionPerformed(ActionEvent arg0) {
+		 * epLite.deleteGroup(actualGroupId); } });
+		 */
+
+		mainView.setListAllGroupsMenuListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					new GroupListController(epLite.getAllGroups(), mainViewController);
+				} catch (EPLiteException epEx) {
+					epEx.printStackTrace();
+					JOptionPane.showMessageDialog(mainView, "Error: " + epEx.getMessage(), "Error listing groups", JOptionPane.ERROR_MESSAGE);
+				}
+			}
+		});
+	}
+
+	public void openGroup(String groupId) {
+		actualGroupId = groupId;
+
+		groupPanelController = new GroupPanelController(actualGroupId);
+		mainView.showPanel(groupPanelController.getGroupPanel());
+	}
+
+	private void openGroupPad(String groupId, String padId) {
+		openGroup(groupId);
+		groupPanelController.loadGroupPadPanel(actualGroupId + "$" + padId);
+	}
+
+	private void createGroupPad(String padId) {
+		epLite.createGroupPad(actualGroupId, padId);
+		groupPanelController = new GroupPanelController(actualGroupId);
+
+		mainView.showPanel(groupPanelController.getGroupPanel());
+		openGroupPad(actualGroupId, padId);
+	}
+
+	private void createPublicPad(String padId) {
+		epLite.createPad(padId);
+		padPanelController = new PadPanelController(padId, false);
+		mainView.showPanel(padPanelController.getPadPanel());
+	}
+
+	private boolean isGroupPad() {
+		return actualGroupId != null;
+	}
+
+	public void openPad(String padId) {
+		if (padId != null) {
+			if (padId.contains("$")) {
+				String[] padIdComponents = padId.split("\\$");
+				openGroupPad(padIdComponents[0], padIdComponents[1]);
+			} else {
+				padPanelController = new PadPanelController(padId, false);
+				mainView.showPanel(padPanelController.getPadPanel());
+			}
+		}
+	}
+
+	public void removePad() {
+		mainView.showPanel(null);
 	}
 }

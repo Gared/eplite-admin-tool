@@ -10,7 +10,7 @@ import org.etherpad.lite.client.admin.view.SettingsView;
 public class SettingsViewController {
 	private SettingsView settingsView = null;
 	private MainView mainView = null;
-	
+
 	private EPLite epLite = EPLite.getInstance();
 
 	public SettingsViewController(MainView mainView) {

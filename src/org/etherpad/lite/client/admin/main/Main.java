@@ -5,7 +5,6 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 import org.etherpad.lite.client.admin.controller.MainViewController;
 
-
 public class Main {
 	static MainViewController mainViewController;
 

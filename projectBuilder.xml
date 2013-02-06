@@ -6,7 +6,7 @@
 	<property name="classes.dir" value="${build.dir}/classes" />
 	<property name="jar.dir" value="${build.dir}/jar" />
 	<property name="lib.dir" value="lib" />
-	<property name="res.dir" value="/res" />
+	<property name="res.dir" value="res" />
 
 	<property name="main-class" value="org.etherpad.lite.client.admin.main.Main" />
 
@@ -29,7 +29,7 @@
 
 	<target name="copyResources">
 		<copy todir="${classes.dir}">
-			<fileset dir="${basedir}">
+			<fileset dir="${basedir}/${src.dir}">
 				<include name="${res.dir}/**" />
 			</fileset>
 		</copy>
@@ -40,7 +40,8 @@
 
 		<jar destfile="${jar.dir}/${ant.project.name}.jar" basedir="${classes.dir}">
 			<zipfileset src="lib/hsqldb.jar" />
-			<zipfileset src="lib/java_etherpad_lite-1.0.0.jar" />
+			<zipfileset src="lib/etherpad_lite_client-1.2.jar" />
+			<zipfileset src="lib/json-simple-1.1.1.jar" />
 			<manifest>
 				<attribute name="Main-Class" value="${main-class}" />
 			</manifest>
